@@ -23,15 +23,15 @@ const NoteViewerScreen = ({ route }) => {
 
   const handleToggleFavorite = () => {
     if (isFavorite()) {
-      dispatch({ 
-        type: 'REMOVE_FAVORITE', 
-        payload: { type: 'notes', id: note._id } 
+      dispatch({
+        type: 'REMOVE_FAVORITE',
+        payload: { type: 'notes', id: note._id }
       });
       Alert.alert('Removed', 'Note removed from favorites');
     } else {
-      dispatch({ 
-        type: 'ADD_FAVORITE', 
-        payload: { type: 'notes', item: note } 
+      dispatch({
+        type: 'ADD_FAVORITE',
+        payload: { type: 'notes', item: note }
       });
       Alert.alert('Added', 'Note added to favorites');
     }
@@ -132,20 +132,20 @@ const NoteViewerScreen = ({ route }) => {
       {/* Header Section */}
       <View style={styles.header}>
         <View style={styles.fileIconContainer}>
-          <Ionicons 
-            name={getFileIcon(fileType)} 
-            size={48} 
-            color="#FF9800" 
+          <Ionicons
+            name={getFileIcon(fileType)}
+            size={48}
+            color="#FF9800"
           />
         </View>
-        <TouchableOpacity 
-          style={styles.favoriteButton} 
+        <TouchableOpacity
+          style={styles.favoriteButton}
           onPress={handleToggleFavorite}
         >
-          <Ionicons 
-            name={isFavorite() ? "heart" : "heart-outline"} 
-            size={24} 
-            color={isFavorite() ? "#F44336" : "#ccc"} 
+          <Ionicons
+            name={isFavorite() ? "heart" : "heart-outline"}
+            size={24}
+            color={isFavorite() ? "#F44336" : "#ccc"}
           />
         </TouchableOpacity>
       </View>
@@ -153,23 +153,23 @@ const NoteViewerScreen = ({ route }) => {
       {/* Note Information */}
       <View style={styles.infoSection}>
         <Text style={styles.title}>{note.title}</Text>
-        
+
         <View style={styles.metaInfo}>
           <View style={styles.metaItem}>
             <Ionicons name="book-outline" size={16} color="#4CAF50" />
             <Text style={styles.metaText}>{courseTitle}</Text>
           </View>
-          
+
           <View style={styles.metaItem}>
             <Ionicons name="school-outline" size={16} color="#2196F3" />
             <Text style={styles.metaText}>{levelTitle}</Text>
           </View>
-          
+
           <View style={styles.metaItem}>
             <Ionicons name="calendar-outline" size={16} color="#666" />
             <Text style={styles.metaText}>Created: {formatDate(note.createdAt)}</Text>
           </View>
-          
+
           {note.updatedAt !== note.createdAt && (
             <View style={styles.metaItem}>
               <Ionicons name="refresh-outline" size={16} color="#666" />
@@ -181,16 +181,16 @@ const NoteViewerScreen = ({ route }) => {
 
       {/* Action Buttons */}
       <View style={styles.actionsSection}>
-        <TouchableOpacity 
-          style={[styles.actionButton, styles.primaryButton]} 
+        <TouchableOpacity
+          style={[styles.actionButton, styles.primaryButton]}
           onPress={handleOpenInDrive}
         >
           <Ionicons name="open-outline" size={20} color="white" />
           <Text style={styles.primaryButtonText}>Open in Drive</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={[styles.actionButton, styles.secondaryButton]} 
+        <TouchableOpacity
+          style={[styles.actionButton, styles.secondaryButton]}
           onPress={handleOpenInBrowser}
         >
           <Ionicons name="globe-outline" size={20} color="#2196F3" />
@@ -198,16 +198,16 @@ const NoteViewerScreen = ({ route }) => {
         </TouchableOpacity>
 
         <View style={styles.utilityButtons}>
-          <TouchableOpacity 
-            style={styles.utilityButton} 
+          <TouchableOpacity
+            style={styles.utilityButton}
             onPress={handleCopyLink}
           >
             <Ionicons name="copy-outline" size={20} color="#666" />
             <Text style={styles.utilityButtonText}>Copy Link</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.utilityButton} 
+          <TouchableOpacity
+            style={styles.utilityButton}
             onPress={handleShare}
           >
             <Ionicons name="share-outline" size={20} color="#666" />

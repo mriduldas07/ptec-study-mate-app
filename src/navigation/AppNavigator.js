@@ -57,6 +57,13 @@ const SearchStack = () => (
       options={{ title: 'Search' }}
     />
     <Stack.Screen 
+      name="Notes" 
+      component={NotesScreen} 
+      options={({ route }) => ({ 
+        title: route.params?.courseTitle ? `${route.params.courseTitle} Notes` : 'Notes' 
+      })}
+    />
+    <Stack.Screen 
       name="NoteViewer" 
       component={NoteViewerScreen} 
       options={{ title: 'Note Details' }}
@@ -70,6 +77,13 @@ const FavoritesStack = () => (
       name="Favorites" 
       component={FavoritesScreen} 
       options={{ title: 'Favorites' }}
+    />
+    <Stack.Screen 
+      name="Notes" 
+      component={NotesScreen} 
+      options={({ route }) => ({ 
+        title: route.params?.courseTitle ? `${route.params.courseTitle} Notes` : 'Notes' 
+      })}
     />
     <Stack.Screen 
       name="NoteViewer" 
