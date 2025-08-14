@@ -7,6 +7,7 @@ import {
   Text,
 } from 'react-native';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
 import { apiService } from '../services/api';
 import LevelCard from '../components/LevelCard';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -14,7 +15,18 @@ import ErrorBoundary from '../components/ErrorBoundary';
 
 const LevelsScreen = ({ navigation }) => {
   const { state, dispatch } = useApp();
+  const { colors } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
+
+  // Fallback colors in case theme is not available
+  const safeColors = colors || {
+    background: '#F5F5F5',
+    surface: '#FFFFFF',
+    primary: '#2196F3',
+    textSecondary: '#666666',
+    textTertiary: '#999999',
+    border: '#E0E0E0',
+  };
 
   useEffect(() => {
     if (state.levels.data.length === 0) {
@@ -59,7 +71,7 @@ const LevelsScreen = ({ navigation }) => {
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Text style={styles.emptyStateText}>No levels available</Text>
+      <Text style={[styles.emptyStateText, { color: safeColors.textSecondary }]}>No levels available</Text>
     </View>
   );
 
@@ -72,17 +84,23 @@ const LevelsScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: safeColors.background }]}>
       <FlatList
         data={state.levels.data}
         renderItem={renderLevelCard}
         keyExtractor={(item) => item._id}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            tintColor={safeColors.primary}
+            colors={[safeColors.primary]}
+          />
         }
         ListEmptyComponent={renderEmptyState}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={[styles.listContainer, { backgroundColor: safeColors.background }]}
+        style={{ backgroundColor: safeColors.background }}
       />
     </View>
   );
@@ -91,10 +109,10 @@ const LevelsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
   },
   listContainer: {
-    paddingVertical: 8,
+    paddingVertical: 16,
+    paddingBottom: 32,
   },
   emptyState: {
     flex: 1,
@@ -104,8 +122,8 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 16,
-    color: '#666',
     textAlign: 'center',
+    fontWeight: '500',
   },
 });
 

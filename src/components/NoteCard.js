@@ -2,8 +2,10 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
+import { useTheme } from '../context/ThemeContext';
 
 const NoteCard = ({ note, courseTitle, levelTitle, isFavorite, onToggleFavorite, onPress }) => {
+  const { colors, isDark } = useTheme();
 
   const handleOpenLink = async () => {
     if (note.file) {
@@ -21,32 +23,45 @@ const NoteCard = ({ note, courseTitle, levelTitle, isFavorite, onToggleFavorite,
   };
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
+    <TouchableOpacity 
+      style={[styles.card, { 
+        backgroundColor: colors.surface,
+        shadowColor: colors.shadow,
+        borderColor: colors.border,
+      }]} 
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
       <View style={styles.header}>
-        <View style={styles.iconContainer}>
-          <Ionicons name="document-text-outline" size={24} color="#FF9800" />
+        <View style={[styles.iconContainer, { backgroundColor: colors.accent + '20' }]}>
+          <Ionicons name="document-text-outline" size={24} color={colors.accent} />
         </View>
         <TouchableOpacity 
-          style={styles.favoriteButton} 
+          style={[styles.favoriteButton, { backgroundColor: colors.pressed }]} 
           onPress={() => onToggleFavorite(note)}
+          activeOpacity={0.6}
         >
           <Ionicons 
             name={isFavorite ? "heart" : "heart-outline"} 
             size={20} 
-            color={isFavorite ? "#F44336" : "#ccc"} 
+            color={isFavorite ? colors.error : colors.textTertiary} 
           />
         </TouchableOpacity>
       </View>
       
       <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={2}>{note.title}</Text>
-        <Text style={styles.course}>{courseTitle}</Text>
-        <Text style={styles.level}>{levelTitle}</Text>
-        <Text style={styles.date}>Created: {formatDate(note.createdAt)}</Text>
+        <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>{note.title}</Text>
+        <Text style={[styles.course, { color: colors.secondary }]}>{courseTitle}</Text>
+        <Text style={[styles.level, { color: colors.primary }]}>{levelTitle}</Text>
+        <Text style={[styles.date, { color: colors.textSecondary }]}>Created: {formatDate(note.createdAt)}</Text>
       </View>
       
       <View style={styles.actions}>
-        <TouchableOpacity style={styles.openButton} onPress={handleOpenLink}>
+        <TouchableOpacity 
+          style={[styles.openButton, { backgroundColor: colors.primary }]} 
+          onPress={handleOpenLink}
+          activeOpacity={0.8}
+        >
           <Ionicons name="open-outline" size={16} color="white" />
           <Text style={styles.openButtonText}>Open</Text>
         </TouchableOpacity>
@@ -57,77 +72,76 @@ const NoteCard = ({ note, courseTitle, levelTitle, isFavorite, onToggleFavorite,
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
+    padding: 20,
     marginHorizontal: 16,
     marginVertical: 8,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowRadius: 8,
+    elevation: 6,
+    borderWidth: 0.5,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FFF3E0',
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
   },
   favoriteButton: {
-    padding: 4,
+    padding: 10,
+    borderRadius: 12,
   },
   content: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
+    fontSize: 17,
+    fontWeight: '600',
+    marginBottom: 10,
+    letterSpacing: -0.2,
+    lineHeight: 22,
   },
   course: {
     fontSize: 14,
-    color: '#4CAF50',
-    marginBottom: 4,
+    fontWeight: '500',
+    marginBottom: 6,
   },
   level: {
-    fontSize: 12,
-    color: '#2196F3',
-    marginBottom: 4,
+    fontSize: 13,
+    fontWeight: '500',
+    marginBottom: 6,
   },
   date: {
     fontSize: 12,
-    color: '#666',
+    fontWeight: '400',
   },
   actions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
   openButton: {
-    backgroundColor: '#2196F3',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
   },
   openButtonText: {
     color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-    marginLeft: 4,
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 6,
   },
 });
 

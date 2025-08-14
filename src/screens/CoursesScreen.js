@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
 import { apiService } from '../services/api';
 import CourseCard from '../components/CourseCard';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -16,11 +17,26 @@ import ErrorBoundary from '../components/ErrorBoundary';
 
 const CoursesScreen = ({ navigation, route }) => {
   const { state, dispatch } = useApp();
+  const { colors } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
   const [sortBy, setSortBy] = useState('title'); // 'title', 'newest', 'notes'
   const [dataLoaded, setDataLoaded] = useState(false);
 
   const { levelId, levelTitle } = route.params || {};
+
+  // Fallback colors in case theme is not available
+  const safeColors = colors || {
+    background: '#F5F5F5',
+    surface: '#FFFFFF',
+    primary: '#2196F3',
+    secondary: '#4CAF50',
+    accent: '#FF9800',
+    text: '#333333',
+    textSecondary: '#666666',
+    textTertiary: '#999999',
+    border: '#E0E0E0',
+    pressed: 'rgba(0, 0, 0, 0.1)',
+  };
 
   useEffect(() => {
     loadCourses();
@@ -136,29 +152,50 @@ const CoursesScreen = ({ navigation, route }) => {
   };
 
   const renderSortOptions = () => (
-    <View style={styles.sortContainer}>
-      <Text style={styles.sortLabel}>Sort by:</Text>
+    <View style={[styles.sortContainer, { backgroundColor: safeColors.surface, borderBottomColor: safeColors.border }]}>
+      <Text style={[styles.sortLabel, { color: safeColors.textSecondary }]}>Sort by:</Text>
       <TouchableOpacity
-        style={[styles.sortButton, sortBy === 'title' && styles.sortButtonActive]}
+        style={[
+          styles.sortButton, 
+          { backgroundColor: sortBy === 'title' ? safeColors.primary : safeColors.pressed }
+        ]}
         onPress={() => setSortBy('title')}
+        activeOpacity={0.7}
       >
-        <Text style={[styles.sortButtonText, sortBy === 'title' && styles.sortButtonTextActive]}>
+        <Text style={[
+          styles.sortButtonText, 
+          { color: sortBy === 'title' ? 'white' : safeColors.textSecondary }
+        ]}>
           A-Z
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.sortButton, sortBy === 'newest' && styles.sortButtonActive]}
+        style={[
+          styles.sortButton, 
+          { backgroundColor: sortBy === 'newest' ? safeColors.primary : safeColors.pressed }
+        ]}
         onPress={() => setSortBy('newest')}
+        activeOpacity={0.7}
       >
-        <Text style={[styles.sortButtonText, sortBy === 'newest' && styles.sortButtonTextActive]}>
+        <Text style={[
+          styles.sortButtonText, 
+          { color: sortBy === 'newest' ? 'white' : safeColors.textSecondary }
+        ]}>
           Newest
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.sortButton, sortBy === 'notes' && styles.sortButtonActive]}
+        style={[
+          styles.sortButton, 
+          { backgroundColor: sortBy === 'notes' ? safeColors.primary : safeColors.pressed }
+        ]}
         onPress={() => setSortBy('notes')}
+        activeOpacity={0.7}
       >
-        <Text style={[styles.sortButtonText, sortBy === 'notes' && styles.sortButtonTextActive]}>
+        <Text style={[
+          styles.sortButtonText, 
+          { color: sortBy === 'notes' ? 'white' : safeColors.textSecondary }
+        ]}>
           Most Notes
         </Text>
       </TouchableOpacity>
@@ -167,8 +204,8 @@ const CoursesScreen = ({ navigation, route }) => {
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Ionicons name="book-outline" size={64} color="#ccc" />
-      <Text style={styles.emptyStateText}>
+      <Ionicons name="book-outline" size={64} color={safeColors.textTertiary} />
+      <Text style={[styles.emptyStateText, { color: safeColors.textSecondary }]}>
         {levelId ? `No courses found for ${levelTitle}` : 'No courses available'}
       </Text>
     </View>
@@ -183,18 +220,24 @@ const CoursesScreen = ({ navigation, route }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: safeColors.background }]}>
       {renderSortOptions()}
       <FlatList
         data={getSortedCourses()}
         renderItem={renderCourseCard}
         keyExtractor={(item) => item._id}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            tintColor={safeColors.primary}
+            colors={[safeColors.primary]}
+          />
         }
         ListEmptyComponent={renderEmptyState}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={[styles.listContainer, { backgroundColor: safeColors.background }]}
+        style={{ backgroundColor: safeColors.background }}
       />
     </View>
   );
@@ -203,41 +246,32 @@ const CoursesScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
   },
   sortContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    paddingVertical: 16,
+    borderBottomWidth: 0.5,
   },
   sortLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginRight: 12,
+    fontSize: 15,
+    fontWeight: '500',
+    marginRight: 16,
   },
   sortButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: '#F5F5F5',
-    marginRight: 8,
-  },
-  sortButtonActive: {
-    backgroundColor: '#2196F3',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 10,
   },
   sortButtonText: {
-    fontSize: 12,
-    color: '#666',
-  },
-  sortButtonTextActive: {
-    color: 'white',
+    fontSize: 13,
+    fontWeight: '500',
   },
   listContainer: {
-    paddingVertical: 8,
+    paddingVertical: 16,
+    paddingBottom: 32,
   },
   emptyState: {
     flex: 1,
@@ -247,9 +281,9 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 16,
-    color: '#666',
     textAlign: 'center',
     marginTop: 16,
+    fontWeight: '500',
   },
 });
 

@@ -12,10 +12,46 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import * as Clipboard from 'expo-clipboard';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 const NoteViewerScreen = ({ route }) => {
   const { note, courseTitle, levelTitle } = route.params;
   const { state, dispatch } = useApp();
+
+  // Get theme with error handling
+  let theme, styles;
+  try {
+    const themeContext = useTheme();
+    theme = themeContext;
+    styles = useThemedStyles(createStyles);
+  } catch (error) {
+    console.error('Theme error:', error);
+    // Fallback theme
+    theme = {
+      colors: {
+        background: '#f5f5f5',
+        surface: '#ffffff',
+        text: '#000000',
+        textSecondary: '#666666',
+        primary: '#007AFF',
+        primaryLight: 'rgba(0, 122, 255, 0.1)',
+        success: '#34C759',
+        error: '#FF3B30',
+        backgroundSecondary: '#ffffff',
+      }
+    };
+    styles = createStyles(theme);
+  }
+
+  // Add safety check for theme
+  if (!theme || !theme.colors) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5' }}>
+        <Text style={{ color: '#000000' }}>Loading theme...</Text>
+      </View>
+    );
+  }
 
   const isFavorite = () => {
     return state.favorites.notes.some(fav => fav._id === note._id);
@@ -128,242 +164,311 @@ const NoteViewerScreen = ({ route }) => {
   const fileType = getFileType(note.file);
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Header Section */}
-      <View style={styles.header}>
-        <View style={styles.fileIconContainer}>
-          <Ionicons
-            name={getFileIcon(fileType)}
-            size={48}
-            color="#FF9800"
-          />
-        </View>
-        <TouchableOpacity
-          style={styles.favoriteButton}
-          onPress={handleToggleFavorite}
-        >
-          <Ionicons
-            name={isFavorite() ? "heart" : "heart-outline"}
-            size={24}
-            color={isFavorite() ? "#F44336" : "#ccc"}
-          />
-        </TouchableOpacity>
-      </View>
-
-      {/* Note Information */}
-      <View style={styles.infoSection}>
-        <Text style={styles.title}>{note.title}</Text>
-
-        <View style={styles.metaInfo}>
-          <View style={styles.metaItem}>
-            <Ionicons name="book-outline" size={16} color="#4CAF50" />
-            <Text style={styles.metaText}>{courseTitle}</Text>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Hero Header Section */}
+      <View style={styles.heroSection}>
+        <View style={styles.heroContent}>
+          <View style={styles.fileIconContainer}>
+            <Ionicons
+              name={getFileIcon(fileType)}
+              size={56}
+              color={theme.colors.primary}
+            />
           </View>
 
-          <View style={styles.metaItem}>
-            <Ionicons name="school-outline" size={16} color="#2196F3" />
-            <Text style={styles.metaText}>{levelTitle}</Text>
-          </View>
-
-          <View style={styles.metaItem}>
-            <Ionicons name="calendar-outline" size={16} color="#666" />
-            <Text style={styles.metaText}>Created: {formatDate(note.createdAt)}</Text>
-          </View>
-
-          {note.updatedAt !== note.createdAt && (
-            <View style={styles.metaItem}>
-              <Ionicons name="refresh-outline" size={16} color="#666" />
-              <Text style={styles.metaText}>Updated: {formatDate(note.updatedAt)}</Text>
+          <View style={styles.heroText}>
+            <Text style={styles.title} numberOfLines={2}>{note.title}</Text>
+            <View style={styles.breadcrumb}>
+              <Text style={styles.breadcrumbText}>{levelTitle}</Text>
+              <Ionicons name="chevron-forward" size={14} color={theme.colors.textSecondary} />
+              <Text style={styles.breadcrumbText}>{courseTitle}</Text>
             </View>
-          )}
+          </View>
+
+          <TouchableOpacity
+            style={styles.favoriteButton}
+            onPress={handleToggleFavorite}
+            activeOpacity={0.7}
+          >
+            <Ionicons
+              name={isFavorite() ? "heart" : "heart-outline"}
+              size={28}
+              color={isFavorite() ? theme.colors.error : theme.colors.textSecondary}
+            />
+          </TouchableOpacity>
         </View>
       </View>
 
-      {/* Action Buttons */}
-      <View style={styles.actionsSection}>
+      {/* Quick Actions */}
+      <View style={styles.quickActions}>
         <TouchableOpacity
           style={[styles.actionButton, styles.primaryButton]}
           onPress={handleOpenInDrive}
+          activeOpacity={0.8}
         >
-          <Ionicons name="open-outline" size={20} color="white" />
-          <Text style={styles.primaryButtonText}>Open in Drive</Text>
+          <View style={styles.actionButtonContent}>
+            <Ionicons name="open-outline" size={24} color="white" />
+            <Text style={styles.primaryButtonText}>Open in Drive</Text>
+          </View>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.actionButton, styles.secondaryButton]}
           onPress={handleOpenInBrowser}
+          activeOpacity={0.8}
         >
-          <Ionicons name="globe-outline" size={20} color="#2196F3" />
-          <Text style={styles.secondaryButtonText}>Open in Browser</Text>
+          <View style={styles.actionButtonContent}>
+            <Ionicons name="globe-outline" size={24} color={theme.colors.primary} />
+            <Text style={styles.secondaryButtonText}>Open in Browser</Text>
+          </View>
         </TouchableOpacity>
-
-        <View style={styles.utilityButtons}>
-          <TouchableOpacity
-            style={styles.utilityButton}
-            onPress={handleCopyLink}
-          >
-            <Ionicons name="copy-outline" size={20} color="#666" />
-            <Text style={styles.utilityButtonText}>Copy Link</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.utilityButton}
-            onPress={handleShare}
-          >
-            <Ionicons name="share-outline" size={20} color="#666" />
-            <Text style={styles.utilityButtonText}>Share</Text>
-          </TouchableOpacity>
-        </View>
       </View>
 
-      {/* File Preview Info */}
-      <View style={styles.previewSection}>
-        <Text style={styles.sectionTitle}>File Information</Text>
-        <View style={styles.fileInfo}>
-          <View style={styles.fileInfoItem}>
-            <Text style={styles.fileInfoLabel}>Type:</Text>
-            <Text style={styles.fileInfoValue}>
-              {fileType.charAt(0).toUpperCase() + fileType.slice(1)} File
-            </Text>
+      {/* Utility Actions */}
+      <View style={styles.utilitySection}>
+        <TouchableOpacity
+          style={styles.utilityCard}
+          onPress={handleCopyLink}
+          activeOpacity={0.7}
+        >
+          <View style={styles.utilityIconContainer}>
+            <Ionicons name="copy-outline" size={24} color={theme.colors.primary} />
           </View>
-          <View style={styles.fileInfoItem}>
-            <Text style={styles.fileInfoLabel}>Status:</Text>
-            <Text style={[styles.fileInfoValue, styles.statusActive]}>
-              Available
-            </Text>
+          <Text style={styles.utilityText}>Copy Link</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.utilityCard}
+          onPress={handleShare}
+          activeOpacity={0.7}
+        >
+          <View style={styles.utilityIconContainer}>
+            <Ionicons name="share-outline" size={24} color={theme.colors.primary} />
           </View>
+          <Text style={styles.utilityText}>Share</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* File Information Card */}
+      <View style={styles.infoCard}>
+        <Text style={styles.cardTitle}>File Details</Text>
+
+        <View style={styles.infoGrid}>
+          <View style={styles.infoItem}>
+            <View style={styles.infoIconContainer}>
+              <Ionicons name="document-outline" size={20} color={theme.colors.primary} />
+            </View>
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>File Type</Text>
+              <Text style={styles.infoValue}>
+                {fileType.charAt(0).toUpperCase() + fileType.slice(1)} Document
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.infoItem}>
+            <View style={styles.infoIconContainer}>
+              <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
+            </View>
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Status</Text>
+              <Text style={[styles.infoValue, styles.statusActive]}>Available</Text>
+            </View>
+          </View>
+
+          <View style={styles.infoItem}>
+            <View style={styles.infoIconContainer}>
+              <Ionicons name="calendar-outline" size={20} color={theme.colors.primary} />
+            </View>
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Created</Text>
+              <Text style={styles.infoValue}>{formatDate(note.createdAt)}</Text>
+            </View>
+          </View>
+
+          {note.updatedAt !== note.createdAt && (
+            <View style={styles.infoItem}>
+              <View style={styles.infoIconContainer}>
+                <Ionicons name="refresh-outline" size={20} color={theme.colors.primary} />
+              </View>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>Last Updated</Text>
+                <Text style={styles.infoValue}>{formatDate(note.updatedAt)}</Text>
+              </View>
+            </View>
+          )}
         </View>
       </View>
     </ScrollView>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: theme.colors.background,
   },
-  header: {
-    backgroundColor: 'white',
-    padding: 24,
-    alignItems: 'center',
+  heroSection: {
+    backgroundColor: theme.colors.surface,
+    paddingTop: 20,
+    paddingBottom: 24,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    ...theme.shadows.medium,
+  },
+  heroContent: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 16,
   },
   fileIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FFF3E0',
+    width: 72,
+    height: 72,
+    borderRadius: 20,
+    backgroundColor: theme.colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
+    ...theme.shadows.small,
+  },
+  heroText: {
+    flex: 1,
+    paddingTop: 4,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: theme.colors.text,
+    lineHeight: 28,
+    marginBottom: 8,
+  },
+  breadcrumb: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  breadcrumbText: {
+    fontSize: 14,
+    color: theme.colors.textSecondary,
+    fontWeight: '500',
   },
   favoriteButton: {
     padding: 8,
+    borderRadius: 12,
+    backgroundColor: theme.colors.backgroundSecondary,
   },
-  infoSection: {
-    backgroundColor: 'white',
-    padding: 20,
-    marginTop: 1,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 16,
-    lineHeight: 32,
-  },
-  metaInfo: {
+  quickActions: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
     gap: 12,
   },
-  metaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  metaText: {
-    fontSize: 14,
-    color: '#666',
-    marginLeft: 8,
-  },
-  actionsSection: {
-    backgroundColor: 'white',
-    padding: 20,
-    marginTop: 16,
-  },
   actionButton: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    ...theme.shadows.small,
+  },
+  actionButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    marginBottom: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    gap: 12,
   },
   primaryButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: theme.colors.primary,
   },
   secondaryButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: theme.colors.surface,
     borderWidth: 2,
-    borderColor: '#2196F3',
+    borderColor: theme.colors.primary,
   },
   primaryButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 8,
+    fontWeight: '600',
   },
   secondaryButtonText: {
-    color: '#2196F3',
+    color: theme.colors.primary,
     fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 8,
+    fontWeight: '600',
   },
-  utilityButtons: {
+  utilitySection: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 8,
-  },
-  utilityButton: {
-    alignItems: 'center',
-    padding: 12,
-  },
-  utilityButtonText: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
-  },
-  previewSection: {
-    backgroundColor: 'white',
-    padding: 20,
-    marginTop: 16,
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 16,
-  },
-  fileInfo: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
     gap: 12,
   },
-  fileInfoItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  utilityCard: {
+    flex: 1,
+    backgroundColor: theme.colors.surface,
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    gap: 12,
+    ...theme.shadows.small,
+  },
+  utilityIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: theme.colors.primaryLight,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  fileInfoLabel: {
+  utilityText: {
     fontSize: 14,
-    color: '#666',
+    fontWeight: '600',
+    color: theme.colors.text,
+    textAlign: 'center',
   },
-  fileInfoValue: {
-    fontSize: 14,
-    color: '#333',
+  infoCard: {
+    backgroundColor: theme.colors.surface,
+    marginHorizontal: 20,
+    marginTop: 24,
+    marginBottom: 32,
+    borderRadius: 20,
+    padding: 24,
+    ...theme.shadows.medium,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: theme.colors.text,
+    marginBottom: 20,
+  },
+  infoGrid: {
+    gap: 20,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  infoIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: theme.colors.primaryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  infoContent: {
+    flex: 1,
+  },
+  infoLabel: {
+    fontSize: 13,
+    color: theme.colors.textSecondary,
     fontWeight: '500',
+    marginBottom: 2,
+  },
+  infoValue: {
+    fontSize: 15,
+    color: theme.colors.text,
+    fontWeight: '600',
   },
   statusActive: {
-    color: '#4CAF50',
+    color: theme.colors.success,
   },
 });
 

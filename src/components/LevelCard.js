@@ -1,47 +1,58 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../context/ThemeContext';
 
 const LevelCard = ({ level, courseCount, onPress }) => {
+  const { colors } = useTheme();
+
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      <View style={styles.iconContainer}>
-        <Ionicons name="school-outline" size={32} color="#2196F3" />
+    <TouchableOpacity 
+      style={[styles.card, { 
+        backgroundColor: colors.surface,
+        shadowColor: colors.shadow,
+        borderColor: colors.border,
+      }]} 
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <View style={[styles.iconContainer, { backgroundColor: colors.primary + '20' }]}>
+        <Ionicons name="school-outline" size={32} color={colors.primary} />
       </View>
       <View style={styles.content}>
-        <Text style={styles.title}>{level.title}</Text>
-        <Text style={styles.courseCount}>
+        <Text style={[styles.title, { color: colors.text }]}>{level.title}</Text>
+        <Text style={[styles.courseCount, { color: colors.textSecondary }]}>
           {courseCount} {courseCount === 1 ? 'course' : 'courses'}
         </Text>
       </View>
-      <Ionicons name="chevron-forward" size={20} color="#ccc" />
+      <View style={[styles.chevronContainer, { backgroundColor: colors.pressed }]}>
+        <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+      </View>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
+    padding: 20,
     marginHorizontal: 16,
     marginVertical: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowRadius: 8,
+    elevation: 6,
+    borderWidth: 0.5,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#E3F2FD',
+    width: 56,
+    height: 56,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -51,13 +62,20 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
+    fontWeight: '600',
+    marginBottom: 6,
+    letterSpacing: -0.2,
   },
   courseCount: {
     fontSize: 14,
-    color: '#666',
+    fontWeight: '500',
+  },
+  chevronContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

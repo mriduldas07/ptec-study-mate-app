@@ -1,32 +1,44 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../context/ThemeContext';
 
 const CourseCard = ({ course, noteCount, levelTitle, isFavorite, onToggleFavorite, onPress }) => {
+  const { colors, isDark } = useTheme();
+
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      <View style={styles.iconContainer}>
-        <Ionicons name="book-outline" size={28} color="#4CAF50" />
+    <TouchableOpacity 
+      style={[styles.card, { 
+        backgroundColor: colors.surface,
+        shadowColor: colors.shadow,
+        borderColor: colors.border,
+      }]} 
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <View style={[styles.iconContainer, { backgroundColor: colors.secondary + '20' }]}>
+        <Ionicons name="book-outline" size={28} color={colors.secondary} />
       </View>
       <View style={styles.content}>
-        <Text style={styles.title}>{course.title}</Text>
-        <Text style={styles.level}>{levelTitle}</Text>
-        <Text style={styles.noteCount}>
+        <Text style={[styles.title, { color: colors.text }]}>{course.title}</Text>
+        <Text style={[styles.level, { color: colors.primary }]}>{levelTitle}</Text>
+        <Text style={[styles.noteCount, { color: colors.textSecondary }]}>
           {noteCount !== undefined ? `${noteCount} ${noteCount === 1 ? 'note' : 'notes'}` : 'Loading...'}
         </Text>
       </View>
       <View style={styles.actions}>
         <TouchableOpacity 
-          style={styles.favoriteButton} 
+          style={[styles.favoriteButton, { backgroundColor: colors.pressed }]} 
           onPress={() => onToggleFavorite && onToggleFavorite(course)}
+          activeOpacity={0.6}
         >
           <Ionicons 
             name={isFavorite ? "heart" : "heart-outline"} 
             size={20} 
-            color={isFavorite ? "#F44336" : "#ccc"} 
+            color={isFavorite ? colors.error : colors.textTertiary} 
           />
         </TouchableOpacity>
-        <Ionicons name="chevron-forward" size={16} color="#ccc" />
+        <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
       </View>
     </TouchableOpacity>
   );
@@ -34,27 +46,25 @@ const CourseCard = ({ course, noteCount, levelTitle, isFavorite, onToggleFavorit
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
+    padding: 20,
     marginHorizontal: 16,
     marginVertical: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowRadius: 8,
+    elevation: 6,
+    borderWidth: 0.5,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#E8F5E8',
+    width: 52,
+    height: 52,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -63,27 +73,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
+    fontSize: 17,
+    fontWeight: '600',
+    marginBottom: 6,
+    letterSpacing: -0.2,
   },
   level: {
     fontSize: 14,
-    color: '#4CAF50',
-    marginBottom: 2,
+    fontWeight: '500',
+    marginBottom: 4,
   },
   noteCount: {
-    fontSize: 12,
-    color: '#666',
+    fontSize: 13,
+    fontWeight: '400',
   },
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   favoriteButton: {
-    padding: 8,
-    marginRight: 4,
+    padding: 10,
+    marginRight: 8,
+    borderRadius: 12,
   },
 });
 

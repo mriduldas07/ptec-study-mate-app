@@ -117,32 +117,36 @@ const HomeScreen = ({ navigation }) => {
         <Text style={[styles.sectionTitle, { color: safeColors.text }]}>Quick Actions</Text>
         <View style={styles.actionGrid}>
           <TouchableOpacity
-            style={styles.actionCard}
+            style={[styles.actionCard, { backgroundColor: safeColors.elevated }]}
             onPress={() => navigation.navigate('Levels')}
+            activeOpacity={0.7}
           >
-            <Ionicons name="layers-outline" size={24} color="#2196F3" />
-            <Text style={styles.actionText}>Browse by Level</Text>
+            <Ionicons name="layers-outline" size={24} color={safeColors.primary} />
+            <Text style={[styles.actionText, { color: safeColors.text }]}>Browse by Level</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.actionCard}
+            style={[styles.actionCard, { backgroundColor: safeColors.elevated }]}
             onPress={() => navigation.navigate('Courses')}
+            activeOpacity={0.7}
           >
-            <Ionicons name="library-outline" size={24} color="#4CAF50" />
-            <Text style={styles.actionText}>Browse Courses</Text>
+            <Ionicons name="library-outline" size={24} color={safeColors.secondary} />
+            <Text style={[styles.actionText, { color: safeColors.text }]}>Browse Courses</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.actionCard}
+            style={[styles.actionCard, { backgroundColor: safeColors.elevated }]}
             onPress={() => navigation.navigate('Notes')}
+            activeOpacity={0.7}
           >
-            <Ionicons name="documents-outline" size={24} color="#FF9800" />
-            <Text style={styles.actionText}>All Notes</Text>
+            <Ionicons name="documents-outline" size={24} color={safeColors.accent} />
+            <Text style={[styles.actionText, { color: safeColors.text }]}>All Notes</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.actionCard}
+            style={[styles.actionCard, { backgroundColor: safeColors.elevated }]}
             onPress={() => navigation.navigate('FavoritesTab')}
+            activeOpacity={0.7}
           >
-            <Ionicons name="heart-outline" size={24} color="#F44336" />
-            <Text style={styles.actionText}>My Favorites</Text>
+            <Ionicons name="heart-outline" size={24} color={safeColors.error} />
+            <Text style={[styles.actionText, { color: safeColors.text }]}>My Favorites</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -229,17 +233,25 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     width: '48%',
-    backgroundColor: '#F8F9FA',
-    padding: 16,
-    borderRadius: 12,
+    padding: 20,
+    borderRadius: 16,
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   actionText: {
     fontSize: 14,
-    color: '#333',
-    marginTop: 8,
+    fontWeight: '500',
+    marginTop: 12,
     textAlign: 'center',
+    letterSpacing: -0.1,
   },
   recentNoteCard: {
     flexDirection: 'row',
