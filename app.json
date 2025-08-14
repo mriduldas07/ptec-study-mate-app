@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "PTEC NoteBot",
-    "slug": "ptec-notebot",
+    "name": "PTEC Studymate",
+    "slug": "ptec-studymate",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logo.png",

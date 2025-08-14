@@ -1,67 +1,166 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Image, Dimensions } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '../context/ThemeContext';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const SplashScreen = ({ onFinish }) => {
+    const { theme } = useTheme();
+    
+    // Animation refs
     const fadeAnim = useRef(new Animated.Value(0)).current;
-    const scaleAnim = useRef(new Animated.Value(0.8)).current;
-    const spinValue = useRef(new Animated.Value(0)).current;
+    const scaleAnim = useRef(new Animated.Value(0.3)).current;
+    const logoRotateAnim = useRef(new Animated.Value(0)).current;
+    const textSlideAnim = useRef(new Animated.Value(50)).current;
     const progressAnim = useRef(new Animated.Value(0)).current;
+    const pulseAnim = useRef(new Animated.Value(1)).current;
+    const shimmerAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
-        // Start animations
-        const fadeIn = Animated.timing(fadeAnim, {
+        // Create smooth, fast animations sequence
+        const logoAnimation = Animated.sequence([
+            Animated.parallel([
+                Animated.timing(fadeAnim, {
+                    toValue: 1,
+                    duration: 600,
+                    useNativeDriver: true,
+                }),
+                Animated.spring(scaleAnim, {
+                    toValue: 1,
+                    tension: 100,
+                    friction: 8,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(logoRotateAnim, {
+                    toValue: 1,
+                    duration: 800,
+                    useNativeDriver: true,
+                }),
+            ]),
+            Animated.timing(textSlideAnim, {
+                toValue: 0,
+                duration: 400,
+                useNativeDriver: true,
+            }),
+        ]);
+
+        // Progress bar animation
+        const progressAnimation = Animated.timing(progressAnim, {
             toValue: 1,
-            duration: 1000,
-            useNativeDriver: true,
+            duration: 1800,
+            useNativeDriver: false,
         });
 
-        const scaleIn = Animated.timing(scaleAnim, {
-            toValue: 1,
-            duration: 1000,
-            useNativeDriver: true,
-        });
+        // Pulse animation for logo
+        const pulseAnimation = Animated.loop(
+            Animated.sequence([
+                Animated.timing(pulseAnim, {
+                    toValue: 1.1,
+                    duration: 1000,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(pulseAnim, {
+                    toValue: 1,
+                    duration: 1000,
+                    useNativeDriver: true,
+                }),
+            ])
+        );
 
-        const progressIn = Animated.timing(progressAnim, {
-            toValue: 1,
-            duration: 2500,
-            useNativeDriver: true,
-        });
-
-        const spin = Animated.loop(
-            Animated.timing(spinValue, {
+        // Shimmer effect
+        const shimmerAnimation = Animated.loop(
+            Animated.timing(shimmerAnim, {
                 toValue: 1,
-                duration: 3000,
+                duration: 2000,
                 useNativeDriver: true,
             })
         );
 
-        // Start all animations
-        Animated.parallel([fadeIn, scaleIn]).start();
-        progressIn.start();
-        spin.start();
+        // Start animations
+        logoAnimation.start();
+        progressAnimation.start();
+        
+        // Start pulse after initial animation
+        setTimeout(() => {
+            pulseAnimation.start();
+            shimmerAnimation.start();
+        }, 1000);
 
-        // Auto finish after 3 seconds
+        // Auto finish after 2.5 seconds (faster loading)
         const timer = setTimeout(() => {
             if (onFinish) {
                 onFinish();
             }
-        }, 3000);
+        }, 2500);
 
         return () => {
             clearTimeout(timer);
-            spin.stop();
+            pulseAnimation.stop();
+            shimmerAnimation.stop();
         };
-    }, [fadeAnim, scaleAnim, spinValue, progressAnim, onFinish]);
+    }, []);
 
-    const rotate = spinValue.interpolate({
+    const logoRotate = logoRotateAnim.interpolate({
         inputRange: [0, 1],
         outputRange: ['0deg', '360deg'],
     });
 
+    const shimmerTranslate = shimmerAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: [-width, width],
+    });
+
+    const progressWidth = progressAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0%', '100%'],
+    });
+
+    // Use theme colors or fallback
+    const colors = theme?.colors || {
+        primary: '#007AFF',
+        background: '#FFFFFF',
+        text: '#000000',
+        textSecondary: '#666666',
+    };
+
+    const gradientColors = theme?.isDark 
+        ? ['#000000', '#1a1a1a', '#2a2a2a']
+        : ['#007AFF', '#5856D6', '#007AFF'];
+
     return (
-        <View style={styles.container}>
+        <LinearGradient
+            colors={gradientColors}
+            style={styles.container}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+        >
+            {/* Background Pattern */}
+            <View style={styles.backgroundPattern}>
+                {[...Array(20)].map((_, i) => (
+                    <Animated.View
+                        key={i}
+                        style={[
+                            styles.patternDot,
+                            {
+                                opacity: fadeAnim.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [0, 0.1],
+                                }),
+                                transform: [
+                                    {
+                                        scale: fadeAnim.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [0, 1],
+                                        }),
+                                    },
+                                ],
+                            },
+                        ]}
+                    />
+                ))}
+            </View>
+
             <Animated.View
                 style={[
                     styles.content,
@@ -71,90 +170,220 @@ const SplashScreen = ({ onFinish }) => {
                     },
                 ]}
             >
-                <Animated.View style={[styles.logoContainer, { transform: [{ rotate }] }]}>
-                    <Image
-                        source={require('../../assets/logo.png')}
-                        style={styles.logo}
-                        resizeMode="contain"
+                {/* Logo Container with Glow Effect */}
+                <View style={styles.logoWrapper}>
+                    <Animated.View
+                        style={[
+                            styles.logoGlow,
+                            {
+                                transform: [
+                                    { scale: pulseAnim },
+                                    { rotate: logoRotate },
+                                ],
+                            },
+                        ]}
                     />
-                </Animated.View>
+                    <Animated.View
+                        style={[
+                            styles.logoContainer,
+                            {
+                                transform: [
+                                    { scale: pulseAnim },
+                                    { rotate: logoRotate },
+                                ],
+                            },
+                        ]}
+                    >
+                        <Image
+                            source={require('../../assets/logo.png')}
+                            style={styles.logo}
+                            resizeMode="contain"
+                        />
+                    </Animated.View>
+                </View>
 
-                <Text style={styles.title}>PTEC NoteBot</Text>
-                <Text style={styles.subtitle}>Your Educational Companion</Text>
-
-                <View style={styles.loadingContainer}>
-                    <View style={styles.loadingBar}>
+                {/* Text Content */}
+                <Animated.View
+                    style={[
+                        styles.textContainer,
+                        {
+                            transform: [{ translateY: textSlideAnim }],
+                        },
+                    ]}
+                >
+                    <View style={styles.titleWrapper}>
+                        <Text style={styles.title}>PTEC Studymate</Text>
                         <Animated.View
                             style={[
-                                styles.loadingProgress,
+                                styles.shimmer,
                                 {
-                                    transform: [{
-                                        scaleX: progressAnim,
-                                    }],
+                                    transform: [{ translateX: shimmerTranslate }],
                                 },
                             ]}
                         />
                     </View>
+                    <Text style={styles.subtitle}>Your Educational Companion</Text>
+                    <Text style={styles.tagline}>Learn • Organize • Excel</Text>
+                </Animated.View>
+
+                {/* Modern Progress Indicator */}
+                <View style={styles.progressContainer}>
+                    <View style={styles.progressTrack}>
+                        <Animated.View
+                            style={[
+                                styles.progressBar,
+                                {
+                                    width: progressWidth,
+                                },
+                            ]}
+                        />
+                    </View>
+                    <Text style={styles.loadingText}>Loading your notes...</Text>
                 </View>
             </Animated.View>
-        </View>
+        </LinearGradient>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#2196F3',
         justifyContent: 'center',
         alignItems: 'center',
+        position: 'relative',
+    },
+    backgroundPattern: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+    },
+    patternDot: {
+        width: 4,
+        height: 4,
+        borderRadius: 2,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        margin: 15,
     },
     content: {
         alignItems: 'center',
         justifyContent: 'center',
+        zIndex: 1,
+    },
+    logoWrapper: {
+        position: 'relative',
+        marginBottom: 40,
+    },
+    logoGlow: {
+        position: 'absolute',
+        width: 160,
+        height: 160,
+        borderRadius: 80,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        top: -20,
+        left: -20,
     },
     logoContainer: {
         width: 120,
         height: 120,
+        borderRadius: 60,
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 30,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.3,
+        shadowRadius: 20,
+        elevation: 10,
     },
     logo: {
-        width: 100,
-        height: 100,
+        width: 80,
+        height: 80,
+    },
+    textContainer: {
+        alignItems: 'center',
+        marginBottom: 60,
+    },
+    titleWrapper: {
+        position: 'relative',
+        overflow: 'hidden',
+        marginBottom: 8,
     },
     title: {
-        fontSize: 32,
-        fontWeight: 'bold',
+        fontSize: 36,
+        fontWeight: '800',
         color: 'white',
-        marginBottom: 8,
         textAlign: 'center',
+        letterSpacing: 1,
+        textShadowColor: 'rgba(0, 0, 0, 0.3)',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 4,
     },
-    subtitle: {
-        fontSize: 16,
-        color: 'rgba(255, 255, 255, 0.8)',
-        marginBottom: 40,
-        textAlign: 'center',
-    },
-    loadingContainer: {
-        width: width * 0.6,
-        alignItems: 'center',
-    },
-    loadingBar: {
-        width: '100%',
-        height: 4,
-        backgroundColor: 'rgba(255, 255, 255, 0.3)',
-        borderRadius: 2,
-        overflow: 'hidden',
-    },
-    loadingProgress: {
+    shimmer: {
         position: 'absolute',
-        left: 0,
         top: 0,
+        left: 0,
         right: 0,
         bottom: 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+        width: 30,
+        transform: [{ skewX: '-20deg' }],
+    },
+    subtitle: {
+        fontSize: 18,
+        color: 'rgba(255, 255, 255, 0.9)',
+        marginBottom: 8,
+        textAlign: 'center',
+        fontWeight: '500',
+        letterSpacing: 0.5,
+    },
+    tagline: {
+        fontSize: 14,
+        color: 'rgba(255, 255, 255, 0.7)',
+        textAlign: 'center',
+        fontWeight: '400',
+        letterSpacing: 2,
+        textTransform: 'uppercase',
+    },
+    progressContainer: {
+        width: width * 0.7,
+        alignItems: 'center',
+    },
+    progressTrack: {
+        width: '100%',
+        height: 6,
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        borderRadius: 3,
+        overflow: 'hidden',
+        marginBottom: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    progressBar: {
+        height: '100%',
         backgroundColor: 'white',
-        borderRadius: 2,
+        borderRadius: 3,
+        shadowColor: 'white',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.8,
+        shadowRadius: 6,
+        elevation: 4,
+    },
+    loadingText: {
+        fontSize: 14,
+        color: 'rgba(255, 255, 255, 0.8)',
+        textAlign: 'center',
+        fontWeight: '500',
+        letterSpacing: 0.5,
     },
 });
 
