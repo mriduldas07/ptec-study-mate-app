@@ -28,9 +28,7 @@ const CoursesScreen = ({ navigation, route }) => {
 
   // Force re-render when data is loaded
   useEffect(() => {
-    if (dataLoaded) {
-      console.log('Data loaded, forcing re-render');
-    }
+    
   }, [dataLoaded, state.notes.data, state.courses.data]);
 
   const loadCourses = async () => {
@@ -74,10 +72,6 @@ const CoursesScreen = ({ navigation, route }) => {
 
     const filteredNotes = state.notes.data.filter(note => note.course._id === courseId);
     const count = filteredNotes.length;
-
-    // Debug logging - only log once per render
-    console.log(`Course ${courseId} has ${count} notes`);
-
     return count;
   };
 
@@ -129,8 +123,6 @@ const CoursesScreen = ({ navigation, route }) => {
 
   const renderCourseCard = ({ item }) => {
     const noteCount = getNoteCountForCourse(item._id);
-    console.log(`Rendering course: ${item.title}, ID: ${item._id}, Note count: ${noteCount}`);
-
     return (
       <CourseCard
         course={item}

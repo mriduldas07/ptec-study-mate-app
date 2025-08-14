@@ -22,7 +22,7 @@ const HomeStack = () => (
     <Stack.Screen 
       name="Home" 
       component={HomeScreen} 
-      options={{ title: 'PTEC NoteBot' }}
+      options={{ title: 'PTEC Studymate' }}
     />
     <Stack.Screen 
       name="Levels" 

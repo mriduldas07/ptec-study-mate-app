@@ -41,11 +41,6 @@ const HomeScreen = ({ navigation }) => {
       dispatch({ type: 'SET_DATA', payload: { section: 'courses', data: coursesResponse.data } });
       dispatch({ type: 'SET_DATA', payload: { section: 'notes', data: notesResponse.data } });
 
-      console.log('HomeScreen loaded data:');
-      console.log('Levels:', levelsResponse.data.length);
-      console.log('Courses:', coursesResponse.data.length);
-      console.log('Notes:', notesResponse.data.length);
-
       setStats({
         totalLevels: levelsResponse.data.length,
         totalCourses: coursesResponse.data.length,

@@ -45,7 +45,6 @@ export const apiService = {
   getNotes: async () => {
     try {
       const response = await api.get('/notes');
-      // console.log('API getNotes response:', response.data);
       return response.data;
     } catch (error) {
       console.error('API getNotes error:', error);
@@ -55,9 +54,7 @@ export const apiService = {
 
   getNotesByCourse: async (courseId) => {
     try {
-      console.log('API getNotesByCourse called with courseId:', courseId);
       const response = await api.get(`/notes_course/${courseId}`);
-      // console.log('API getNotesByCourse response:', response.data);
       return response.data;
     } catch (error) {
       console.error('API getNotesByCourse error:', error);
