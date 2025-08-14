@@ -1,8 +1,16 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Image } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 const LoadingSpinner = ({ message = 'Loading...' }) => {
+  const { colors } = useTheme();
   const spinValue = useRef(new Animated.Value(0)).current;
+
+  // Fallback colors in case theme is not available
+  const safeColors = colors || {
+    screenBackground: '#F5F5F5',
+    textSecondary: '#666',
+  };
 
   useEffect(() => {
     const spin = () => {
@@ -22,15 +30,15 @@ const LoadingSpinner = ({ message = 'Loading...' }) => {
   });
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: safeColors.screenBackground }]}>
       <Animated.View style={[styles.logoContainer, { transform: [{ rotate }] }]}>
-        <Image 
-          source={require('../../assets/logo.png')} 
+        <Image
+          source={require('../../assets/logo.png')}
           style={styles.logo}
           resizeMode="contain"
         />
       </Animated.View>
-      <Text style={styles.message}>{message}</Text>
+      <Text style={[styles.message, { color: safeColors.textSecondary }]}>{message}</Text>
     </View>
   );
 };
@@ -41,7 +49,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#F5F5F5',
   },
   logoContainer: {
     width: 80,
@@ -56,7 +63,6 @@ const styles = StyleSheet.create({
   message: {
     marginTop: 20,
     fontSize: 16,
-    color: '#666',
     textAlign: 'center',
     fontWeight: '500',
   },

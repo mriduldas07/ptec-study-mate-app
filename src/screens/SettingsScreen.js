@@ -6,19 +6,18 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  Switch,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
 
 const SettingsScreen = () => {
   const { state, dispatch } = useApp();
+  const { colors, isDark, toggleTheme } = useTheme();
 
   const handleThemeToggle = () => {
-    const newTheme = state.user.preferences.theme === 'light' ? 'dark' : 'light';
-    dispatch({ 
-      type: 'UPDATE_PREFERENCES', 
-      payload: { theme: newTheme } 
-    });
+    toggleTheme();
   };
 
   const handleLinkBehaviorChange = () => {
@@ -49,29 +48,36 @@ const SettingsScreen = () => {
   };
 
   const SettingItem = ({ icon, title, subtitle, onPress, rightElement }) => (
-    <TouchableOpacity style={styles.settingItem} onPress={onPress}>
+    <TouchableOpacity style={[styles.settingItem, { borderBottomColor: colors.divider }]} onPress={onPress}>
       <View style={styles.settingLeft}>
-        <Ionicons name={icon} size={24} color="#2196F3" />
+        <Ionicons name={icon} size={24} color={colors.primary} />
         <View style={styles.settingText}>
-          <Text style={styles.settingTitle}>{title}</Text>
-          {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
+          <Text style={[styles.settingTitle, { color: colors.text }]}>{title}</Text>
+          {subtitle && <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>}
         </View>
       </View>
-      {rightElement || <Ionicons name="chevron-forward" size={20} color="#ccc" />}
+      {rightElement || <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />}
     </TouchableOpacity>
   );
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.screenBackground }]}>
       {/* App Preferences */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Preferences</Text>
+      <View style={[styles.section, { backgroundColor: colors.surface }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Preferences</Text>
         
         <SettingItem
-          icon="moon-outline"
-          title="Theme"
-          subtitle={`Currently: ${state.user.preferences.theme === 'light' ? 'Light' : 'Dark'}`}
-          onPress={handleThemeToggle}
+          icon={isDark ? "moon" : "sunny"}
+          title="Dark Mode"
+          subtitle={`Currently: ${isDark ? 'Dark' : 'Light'} mode`}
+          rightElement={
+            <Switch
+              value={isDark}
+              onValueChange={handleThemeToggle}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor={isDark ? colors.surface : colors.background}
+            />
+          }
         />
         
         <SettingItem
@@ -83,28 +89,28 @@ const SettingsScreen = () => {
       </View>
 
       {/* Statistics */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Statistics</Text>
+      <View style={[styles.section, { backgroundColor: colors.surface }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Statistics</Text>
         
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{state.favorites.notes.length}</Text>
-            <Text style={styles.statLabel}>Favorite Notes</Text>
+            <Text style={[styles.statNumber, { color: colors.primary }]}>{state.favorites.notes.length}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Favorite Notes</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{state.favorites.courses.length}</Text>
-            <Text style={styles.statLabel}>Favorite Courses</Text>
+            <Text style={[styles.statNumber, { color: colors.primary }]}>{state.favorites.courses.length}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Favorite Courses</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{state.user.recentLinks.length}</Text>
-            <Text style={styles.statLabel}>Recent Links</Text>
+            <Text style={[styles.statNumber, { color: colors.primary }]}>{state.user.recentLinks.length}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Recent Links</Text>
           </View>
         </View>
       </View>
 
       {/* About & Support */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>About & Support</Text>
+      <View style={[styles.section, { backgroundColor: colors.surface }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>About & Support</Text>
         
         <SettingItem
           icon="help-circle-outline"
@@ -127,16 +133,13 @@ const SettingsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
   },
   section: {
-    backgroundColor: 'white',
     marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 8,
@@ -148,7 +151,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
   },
   settingLeft: {
     flexDirection: 'row',
@@ -161,12 +163,10 @@ const styles = StyleSheet.create({
   },
   settingTitle: {
     fontSize: 16,
-    color: '#333',
     marginBottom: 2,
   },
   settingSubtitle: {
     fontSize: 14,
-    color: '#666',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -179,11 +179,9 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#2196F3',
   },
   statLabel: {
     fontSize: 12,
-    color: '#666',
     marginTop: 4,
     textAlign: 'center',
   },
