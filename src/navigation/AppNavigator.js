@@ -153,7 +153,8 @@ const AppNavigator = () => {
     <NavigationContainer theme={navigationTheme}>
       <Tab.Navigator
         screenOptions={({ route }) => ({
-          tabBarIcon: ({ focused, color, size }) => {
+          tabBarIcon: ({ focused, color }) => {
+            const size = 24; // Increased icon size to match the taller tab bar
             let iconName;
 
             if (route.name === 'HomeTab') {
@@ -170,9 +171,16 @@ const AppNavigator = () => {
           },
           tabBarActiveTintColor: safeColors.primary,
           tabBarInactiveTintColor: safeColors.textSecondary,
+          tabBarLabelStyle: {
+            fontSize: 12,
+            paddingBottom: 2,
+            fontWeight: '500',
+          },
           tabBarStyle: {
             backgroundColor: safeColors.tabBarBackground,
             borderTopColor: safeColors.tabBarBorder,
+            height: 60, // Increased height for the tab navigator
+            paddingBottom: 5, // Added padding to improve touch targets
           },
           headerShown: false,
         })}

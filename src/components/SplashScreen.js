@@ -118,17 +118,18 @@ const SplashScreen = ({ onFinish }) => {
         outputRange: ['0%', '100%'],
     });
 
-    // Use theme colors for gradients
+    // Use lightweight gradient colors
     const gradientColors = colors.isDark 
-        ? [colors.screenBackground, colors.elevated, colors.surface]
-        : [colors.primary, colors.secondary, colors.accent];
+        ? ['#1a2151', '#2a3a7a', '#3a4f9e'] // Subtle dark blue gradient
+        : ['#e6f2ff', '#c5e1ff', '#a3cfff']; // Light blue gradient
 
     return (
         <LinearGradient
             colors={gradientColors}
             style={styles.container}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
+            start={{ x: 0, y: 0.1 }}
+            end={{ x: 0, y: 0.9 }}
+            locations={[0, 0.5, 1]}
         >
             {/* Background Pattern */}
             <View style={styles.backgroundPattern}>
@@ -265,10 +266,10 @@ const createStyles = (theme) => {
             paddingHorizontal: spacing.md,
         },
         patternDot: {
-            width: 4,
-            height: 4,
-            borderRadius: 2,
-            backgroundColor: colors.isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+            width: 3,
+            height: 3,
+            borderRadius: 1.5,
+            backgroundColor: colors.isDark ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.03)',
             margin: spacing.sm,
         },
         content: {
@@ -287,21 +288,23 @@ const createStyles = (theme) => {
             width: 160,
             height: 160,
             borderRadius: 80,
-            backgroundColor: colors.isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+            backgroundColor: colors.isDark ? 'rgba(58, 79, 158, 0.2)' : 'rgba(163, 207, 255, 0.3)',
             top: -20,
             left: -20,
-            shadowColor: colors.isDark ? colors.textInverse : colors.primary,
+            shadowColor: colors.isDark ? '#3a4f9e' : '#a3cfff',
             shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.8,
-            shadowRadius: 20,
+            shadowOpacity: 0.6,
+            shadowRadius: 15,
         },
         logoContainer: {
             width: 120,
             height: 120,
             borderRadius: 60,
-            backgroundColor: colors.isDark ? 'rgba(255, 255, 255, 0.15)' : colors.surface,
+            backgroundColor: colors.isDark ? 'rgba(42, 58, 122, 0.7)' : 'rgba(197, 225, 255, 0.7)',
             justifyContent: 'center',
             alignItems: 'center',
+            borderWidth: 1,
+            borderColor: colors.isDark ? 'rgba(58, 79, 158, 0.5)' : 'rgba(163, 207, 255, 0.5)',
             ...shadows.large,
         },
         logo: {
@@ -319,12 +322,12 @@ const createStyles = (theme) => {
         },
         title: {
             ...typography.h1,
-            color: colors.textInverse,
+            color: colors.isDark ? '#ffffff' : '#2a3a7a',
             textAlign: 'center',
             letterSpacing: 1,
-            textShadowColor: 'rgba(0, 0, 0, 0.3)',
-            textShadowOffset: { width: 0, height: 2 },
-            textShadowRadius: 4,
+            textShadowColor: colors.isDark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(163, 207, 255, 0.8)',
+            textShadowOffset: { width: 0, height: 1 },
+            textShadowRadius: 3,
         },
         shimmer: {
             position: 'absolute',
@@ -332,19 +335,19 @@ const createStyles = (theme) => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(255, 255, 255, 0.3)',
-            width: 30,
-            transform: [{ skewX: '-20deg' }],
+            backgroundColor: colors.isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.5)',
+            width: 40,
+            transform: [{ skewX: '-15deg' }],
         },
         subtitle: {
             ...typography.h3,
-            color: 'rgba(255, 255, 255, 0.9)',
+            color: colors.isDark ? 'rgba(255, 255, 255, 0.9)' : 'rgba(42, 58, 122, 0.9)',
             marginBottom: spacing.xs,
             textAlign: 'center',
         },
         tagline: {
             ...typography.caption,
-            color: 'rgba(255, 255, 255, 0.7)',
+            color: colors.isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(42, 58, 122, 0.7)',
             textAlign: 'center',
             letterSpacing: 2,
             textTransform: 'uppercase',
@@ -355,26 +358,28 @@ const createStyles = (theme) => {
         },
         progressTrack: {
             width: '100%',
-            height: 6,
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            height: 4,
+            backgroundColor: colors.isDark ? 'rgba(26, 33, 81, 0.4)' : 'rgba(230, 242, 255, 0.7)',
             borderRadius: borderRadius.xs,
             overflow: 'hidden',
             marginBottom: spacing.md,
+            borderWidth: 1,
+            borderColor: colors.isDark ? 'rgba(58, 79, 158, 0.3)' : 'rgba(163, 207, 255, 0.3)',
             ...shadows.small,
         },
         progressBar: {
             height: '100%',
-            backgroundColor: colors.textInverse,
+            backgroundColor: colors.isDark ? '#3a4f9e' : '#a3cfff',
             borderRadius: borderRadius.xs,
-            shadowColor: colors.textInverse,
+            shadowColor: colors.isDark ? '#3a4f9e' : '#a3cfff',
             shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.8,
-            shadowRadius: 6,
-            elevation: 4,
+            shadowOpacity: 0.5,
+            shadowRadius: 4,
+            elevation: 3,
         },
         loadingText: {
             ...typography.body2,
-            color: 'rgba(255, 255, 255, 0.8)',
+            color: colors.isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(42, 58, 122, 0.8)',
             textAlign: 'center',
         },
     });

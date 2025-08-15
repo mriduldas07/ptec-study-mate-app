@@ -7,29 +7,59 @@
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "description": "Your comprehensive educational companion for PTEC students. Access course notes, study materials, and organize your learning journey.",
+    "keywords": ["education", "notes", "study", "ptec", "learning"],
+    "privacy": "public",
+    "platforms": ["ios", "android", "web"],
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#2196F3"
+      "backgroundColor": "#007AFF"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ptec.notebot"
+      "bundleIdentifier": "com.ptec.studymate",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo.png",
-        "backgroundColor": "#2196F3"
+        "backgroundColor": "#007AFF"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.ptec.notebot",
+      "package": "com.ptec.studymate",
+      "versionCode": 1,
       "permissions": [
         "android.permission.INTERNET",
         "android.permission.ACCESS_NETWORK_STATE"
       ]
     },
     "web": {
-      "favicon": "./assets/logo.png"
+      "favicon": "./assets/logo.png",
+      "name": "PTEC Studymate",
+      "shortName": "Studymate",
+      "lang": "en",
+      "scope": "/",
+      "themeColor": "#007AFF",
+      "backgroundColor": "#FFFFFF",
+      "display": "standalone",
+      "startUrl": "/"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ptec-studymate-app"
+      }
     }
   }
 }
