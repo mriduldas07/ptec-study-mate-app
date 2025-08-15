@@ -20,6 +20,7 @@ import { useApp } from "../context/AppContext";
 import { useTheme } from "../context/ThemeContext";
 import { useThemedStyles } from "../hooks/useThemedStyles";
 import { apiService } from "../services/api";
+import { safeText, getCourseTitle } from "../utils/textUtils";
 
 const HomeScreen = ({ navigation }) => {
   const { state, dispatch } = useApp();
@@ -435,10 +436,10 @@ const HomeScreen = ({ navigation }) => {
                 </LinearGradient>
                 <View style={styles.noteTitleContainer}>
                   <Text style={styles.recentNoteTitle} numberOfLines={1}>
-                    {note.title}
+                    {safeText(note.title, "Untitled Note")}
                   </Text>
                   <Text style={styles.noteSubtitle} numberOfLines={1}>
-                    {note.course || "General Note"}
+                    {getCourseTitle(note.course, state.courses.data)}
                   </Text>
                 </View>
                 <View style={styles.noteArrow}>

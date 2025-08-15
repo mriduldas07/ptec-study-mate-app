@@ -14,6 +14,7 @@ import { apiService } from '../services/api';
 import NoteCard from '../components/NoteCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { getCourseTitle, getLevelTitle } from '../utils/textUtils';
 
 const NotesScreen = ({ navigation, route }) => {
     const { state, dispatch } = useApp();
@@ -63,25 +64,7 @@ const NotesScreen = ({ navigation, route }) => {
         setRefreshing(false);
     };
 
-    const getCourseTitle = (course) => {
-        if (typeof course === 'string') {
-            // If course is just an ID, find the course object
-            const courseObj = state.courses.data.find(c => c._id === course);
-            return courseObj ? courseObj.title : 'Unknown Course';
-        }
-        // If course is already an object
-        return course && course.title ? course.title : 'Unknown Course';
-    };
-
-    const getLevelTitle = (level) => {
-        if (typeof level === 'string') {
-            // If level is just an ID, find the level object
-            const levelObj = state.levels.data.find(l => l._id === level);
-            return levelObj ? levelObj.title : 'Unknown Level';
-        }
-        // If level is already an object
-        return level && level.title ? level.title : 'Unknown Level';
-    };
+    // Using utility functions for safe text rendering
 
     const getSortedNotes = () => {
         const notes = courseId
@@ -129,16 +112,16 @@ const NotesScreen = ({ navigation, route }) => {
 
         navigation.navigate('NoteViewer', {
             note,
-            courseTitle: getCourseTitle(note.course),
-            levelTitle: getLevelTitle(note.course ? note.course.level : note.level)
+            courseTitle: getCourseTitle(note.course, state.courses.data),
+            levelTitle: getLevelTitle(note.course ? note.course.level : note.level, state.levels.data)
         });
     };
 
     const renderNoteCard = ({ item }) => (
         <NoteCard
             note={item}
-            courseTitle={getCourseTitle(item.course)}
-            levelTitle={getLevelTitle(item.course ? item.course.level : item.level)}
+            courseTitle={getCourseTitle(item.course, state.courses.data)}
+            levelTitle={getLevelTitle(item.course ? item.course.level : item.level, state.levels.data)}
             isFavorite={isFavorite(item)}
             onToggleFavorite={handleToggleFavorite}
             onPress={() => handleNotePress(item)}
@@ -150,14 +133,14 @@ const NotesScreen = ({ navigation, route }) => {
             <Text style={[styles.sortLabel, { color: safeColors.textSecondary }]}>Sort by:</Text>
             <TouchableOpacity
                 style={[
-                    styles.sortButton, 
+                    styles.sortButton,
                     { backgroundColor: sortBy === 'newest' ? safeColors.primary : safeColors.pressed }
                 ]}
                 onPress={() => setSortBy('newest')}
                 activeOpacity={0.7}
             >
                 <Text style={[
-                    styles.sortButtonText, 
+                    styles.sortButtonText,
                     { color: sortBy === 'newest' ? 'white' : safeColors.textSecondary }
                 ]}>
                     Newest
@@ -165,14 +148,14 @@ const NotesScreen = ({ navigation, route }) => {
             </TouchableOpacity>
             <TouchableOpacity
                 style={[
-                    styles.sortButton, 
+                    styles.sortButton,
                     { backgroundColor: sortBy === 'title' ? safeColors.primary : safeColors.pressed }
                 ]}
                 onPress={() => setSortBy('title')}
                 activeOpacity={0.7}
             >
                 <Text style={[
-                    styles.sortButtonText, 
+                    styles.sortButtonText,
                     { color: sortBy === 'title' ? 'white' : safeColors.textSecondary }
                 ]}>
                     A-Z
@@ -180,14 +163,14 @@ const NotesScreen = ({ navigation, route }) => {
             </TouchableOpacity>
             <TouchableOpacity
                 style={[
-                    styles.sortButton, 
+                    styles.sortButton,
                     { backgroundColor: sortBy === 'oldest' ? safeColors.primary : safeColors.pressed }
                 ]}
                 onPress={() => setSortBy('oldest')}
                 activeOpacity={0.7}
             >
                 <Text style={[
-                    styles.sortButtonText, 
+                    styles.sortButtonText,
                     { color: sortBy === 'oldest' ? 'white' : safeColors.textSecondary }
                 ]}>
                     Oldest
@@ -221,8 +204,8 @@ const NotesScreen = ({ navigation, route }) => {
                 renderItem={renderNoteCard}
                 keyExtractor={(item) => item._id}
                 refreshControl={
-                    <RefreshControl 
-                        refreshing={refreshing} 
+                    <RefreshControl
+                        refreshing={refreshing}
                         onRefresh={onRefresh}
                         tintColor={colors.primary}
                         colors={[colors.primary]}

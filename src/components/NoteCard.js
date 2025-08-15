@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import { useTheme } from '../context/ThemeContext';
 import { useThemedStyles } from '../hooks/useThemedStyles';
+import { safeText, safeFormatDate } from '../utils/textUtils';
 
 const NoteCard = ({ note, courseTitle, levelTitle, isFavorite, onToggleFavorite, onPress }) => {
   const { colors, isDark } = useTheme();
@@ -40,10 +41,7 @@ const NoteCard = ({ note, courseTitle, levelTitle, isFavorite, onToggleFavorite,
     }
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
-  };
+  // Using utility function for safe date formatting
 
   return (
     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
@@ -72,10 +70,10 @@ const NoteCard = ({ note, courseTitle, levelTitle, isFavorite, onToggleFavorite,
         </View>
         
         <View style={styles.content}>
-          <Text style={styles.title} numberOfLines={2}>{note.title}</Text>
-          <Text style={styles.course}>{courseTitle}</Text>
-          <Text style={styles.level}>{levelTitle}</Text>
-          <Text style={styles.date}>Created: {formatDate(note.createdAt)}</Text>
+          <Text style={styles.title} numberOfLines={2}>{safeText(note.title, "Untitled Note")}</Text>
+          <Text style={styles.course}>{safeText(courseTitle, "Unknown Course")}</Text>
+          <Text style={styles.level}>{safeText(levelTitle, "Unknown Level")}</Text>
+          <Text style={styles.date}>Created: {safeFormatDate(note.createdAt)}</Text>
         </View>
         
         <View style={styles.actions}>
