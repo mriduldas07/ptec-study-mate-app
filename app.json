@@ -8,9 +8,19 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "description": "Your comprehensive educational companion for PTEC students. Access course notes, study materials, and organize your learning journey.",
-    "keywords": ["education", "notes", "study", "ptec", "learning"],
+    "keywords": [
+      "education",
+      "notes",
+      "study",
+      "ptec",
+      "learning"
+    ],
     "privacy": "public",
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",

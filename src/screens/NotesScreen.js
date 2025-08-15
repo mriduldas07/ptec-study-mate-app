@@ -63,18 +63,32 @@ const NotesScreen = ({ navigation, route }) => {
         setRefreshing(false);
     };
 
-    const getCourseTitle = (courseId) => {
-        return courseId ? courseId.title : 'Unknown Course';
+    const getCourseTitle = (course) => {
+        if (typeof course === 'string') {
+            // If course is just an ID, find the course object
+            const courseObj = state.courses.data.find(c => c._id === course);
+            return courseObj ? courseObj.title : 'Unknown Course';
+        }
+        // If course is already an object
+        return course && course.title ? course.title : 'Unknown Course';
     };
 
-    const getLevelTitle = (levelId) => {
-        const level = state.levels.data.find(l => l._id === levelId);
-        return level ? level.title : 'Unknown Level';
+    const getLevelTitle = (level) => {
+        if (typeof level === 'string') {
+            // If level is just an ID, find the level object
+            const levelObj = state.levels.data.find(l => l._id === level);
+            return levelObj ? levelObj.title : 'Unknown Level';
+        }
+        // If level is already an object
+        return level && level.title ? level.title : 'Unknown Level';
     };
 
     const getSortedNotes = () => {
         const notes = courseId
-            ? state.notes.data.filter(note => note.course._id === courseId)
+            ? state.notes.data.filter(note => {
+                const courseIdToCheck = typeof note.course === 'string' ? note.course : note.course?._id;
+                return courseIdToCheck === courseId;
+            })
             : state.notes.data;
 
         return [...notes].sort((a, b) => {
@@ -116,7 +130,7 @@ const NotesScreen = ({ navigation, route }) => {
         navigation.navigate('NoteViewer', {
             note,
             courseTitle: getCourseTitle(note.course),
-            levelTitle: getLevelTitle(note.level)
+            levelTitle: getLevelTitle(note.course ? note.course.level : note.level)
         });
     };
 
@@ -124,7 +138,7 @@ const NotesScreen = ({ navigation, route }) => {
         <NoteCard
             note={item}
             courseTitle={getCourseTitle(item.course)}
-            levelTitle={getLevelTitle(item.level)}
+            levelTitle={getLevelTitle(item.course ? item.course.level : item.level)}
             isFavorite={isFavorite(item)}
             onToggleFavorite={handleToggleFavorite}
             onPress={() => handleNotePress(item)}

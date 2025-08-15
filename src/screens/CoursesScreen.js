@@ -85,8 +85,7 @@ const CoursesScreen = ({ navigation, route }) => {
       return 0;
     }
 
-
-    const filteredNotes = state.notes.data.filter(note => note.course._id === courseId);
+    const filteredNotes = state.notes.data.filter(note => note.course && note.course._id === courseId);
     const count = filteredNotes.length;
     return count;
   };
