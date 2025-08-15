@@ -1,16 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Image } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 const LoadingSpinner = ({ message = 'Loading...' }) => {
   const { colors } = useTheme();
+  const styles = useThemedStyles(theme => createStyles(theme));
   const spinValue = useRef(new Animated.Value(0)).current;
-
-  // Fallback colors in case theme is not available
-  const safeColors = colors || {
-    screenBackground: '#F5F5F5',
-    textSecondary: '#666',
-  };
 
   useEffect(() => {
     const spin = () => {
@@ -30,7 +26,7 @@ const LoadingSpinner = ({ message = 'Loading...' }) => {
   });
 
   return (
-    <View style={[styles.container, { backgroundColor: safeColors.screenBackground }]}>
+    <View style={styles.container}>
       <Animated.View style={[styles.logoContainer, { transform: [{ rotate }] }]}>
         <Image
           source={require('../../assets/logo.png')}
@@ -38,34 +34,43 @@ const LoadingSpinner = ({ message = 'Loading...' }) => {
           resizeMode="contain"
         />
       </Animated.View>
-      <Text style={[styles.message, { color: safeColors.textSecondary }]}>{message}</Text>
+      <Text style={styles.message}>{message}</Text>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  logoContainer: {
-    width: 80,
-    height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logo: {
-    width: 60,
-    height: 60,
-  },
-  message: {
-    marginTop: 20,
-    fontSize: 16,
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-});
+// Create styles using the themed styles hook for better dark/light mode support
+const createStyles = (theme) => {
+  const { colors, spacing, typography } = theme;
+  
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.lg,
+      backgroundColor: colors.screenBackground,
+    },
+    logoContainer: {
+      width: 90,
+      height: 90,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.surface + '30',
+      borderRadius: 45,
+      padding: spacing.md,
+    },
+    logo: {
+      width: 60,
+      height: 60,
+    },
+    message: {
+      marginTop: spacing.lg,
+      ...typography.h4,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+  });
+};
 
 export default LoadingSpinner;

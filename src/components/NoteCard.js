@@ -1,11 +1,34 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import { useTheme } from '../context/ThemeContext';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 const NoteCard = ({ note, courseTitle, levelTitle, isFavorite, onToggleFavorite, onPress }) => {
   const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(theme => createStyles(theme));
+  
+  // Create animated value for subtle hover effect
+  const [scaleAnim] = React.useState(new Animated.Value(1));
+  
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.98,
+      friction: 5,
+      tension: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+  
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 3,
+      tension: 400,
+      useNativeDriver: true,
+    }).start();
+  };
 
   const handleOpenLink = async () => {
     if (note.file) {
@@ -23,108 +46,112 @@ const NoteCard = ({ note, courseTitle, levelTitle, isFavorite, onToggleFavorite,
   };
 
   return (
-    <TouchableOpacity 
-      style={[styles.card, { 
-        backgroundColor: colors.surface,
-        shadowColor: colors.shadow,
-        borderColor: colors.border,
-      }]} 
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      <View style={styles.header}>
-        <View style={[styles.iconContainer, { backgroundColor: colors.accent + '20' }]}>
-          <Ionicons name="document-text-outline" size={24} color={colors.accent} />
+    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+      <TouchableOpacity 
+        style={styles.card}
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        activeOpacity={0.9}
+      >
+        <View style={styles.header}>
+          <View style={styles.iconContainer}>
+            <Ionicons name="document-text-outline" size={24} color={colors.accent} />
+          </View>
+          <TouchableOpacity 
+            style={styles.favoriteButton}
+            onPress={() => onToggleFavorite(note)}
+            activeOpacity={0.6}
+          >
+            <Ionicons 
+              name={isFavorite ? "heart" : "heart-outline"} 
+              size={20} 
+              color={isFavorite ? colors.error : colors.textTertiary} 
+            />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity 
-          style={[styles.favoriteButton, { backgroundColor: colors.pressed }]} 
-          onPress={() => onToggleFavorite(note)}
-          activeOpacity={0.6}
-        >
-          <Ionicons 
-            name={isFavorite ? "heart" : "heart-outline"} 
-            size={20} 
-            color={isFavorite ? colors.error : colors.textTertiary} 
-          />
-        </TouchableOpacity>
-      </View>
-      
-      <View style={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>{note.title}</Text>
-        <Text style={[styles.course, { color: colors.secondary }]}>{courseTitle}</Text>
-        <Text style={[styles.level, { color: colors.primary }]}>{levelTitle}</Text>
-        <Text style={[styles.date, { color: colors.textSecondary }]}>Created: {formatDate(note.createdAt)}</Text>
-      </View>
-      
-      <View style={styles.actions}>
-        <TouchableOpacity 
-          style={[styles.openButton, { backgroundColor: colors.primary }]} 
-          onPress={handleOpenLink}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="open-outline" size={16} color="white" />
-          <Text style={styles.openButtonText}>Open</Text>
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
+        
+        <View style={styles.content}>
+          <Text style={styles.title} numberOfLines={2}>{note.title}</Text>
+          <Text style={styles.course}>{courseTitle}</Text>
+          <Text style={styles.level}>{levelTitle}</Text>
+          <Text style={styles.date}>Created: {formatDate(note.createdAt)}</Text>
+        </View>
+        
+        <View style={styles.actions}>
+          <TouchableOpacity 
+            style={styles.openButton}
+            onPress={handleOpenLink}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="open-outline" size={16} color={colors.textInverse} />
+            <Text style={styles.openButtonText}>Open</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
-const styles = StyleSheet.create({
-  card: {
-    borderRadius: 16,
-    padding: 20,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    shadowOffset: {
-      width: 0,
-      height: 4,
+// Create styles using the themed styles hook for better dark/light mode support
+const createStyles = (theme) => {
+  const { colors, shadows, spacing, borderRadius, typography } = theme;
+  
+  return StyleSheet.create({
+    card: {
+      borderRadius: borderRadius.lg,
+      padding: spacing.lg,
+      marginHorizontal: spacing.md,
+      marginVertical: spacing.sm,
+      backgroundColor: colors.surface,
+      borderColor: colors.border,
+      borderWidth: 0.5,
+      ...shadows.medium,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 6,
-    borderWidth: 0.5,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    iconContainer: {
+      width: 48,
+      height: 48,
+      borderRadius: borderRadius.md,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.accent + '15',
+    },
+  favoriteButton: {
+    padding: spacing.sm,
+    borderRadius: borderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  favoriteButton: {
-    padding: 10,
-    borderRadius: 12,
+    backgroundColor: colors.pressed,
   },
   content: {
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   title: {
-    fontSize: 17,
-    fontWeight: '600',
-    marginBottom: 10,
+    ...typography.h3,
+    color: colors.text,
+    marginBottom: spacing.sm,
     letterSpacing: -0.2,
     lineHeight: 22,
   },
   course: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 6,
+    ...typography.subtitle,
+    color: colors.secondary,
+    marginBottom: spacing.xs,
   },
   level: {
-    fontSize: 13,
-    fontWeight: '500',
-    marginBottom: 6,
+    ...typography.body,
+    color: colors.primary,
+    marginBottom: spacing.xs,
   },
   date: {
-    fontSize: 12,
-    fontWeight: '400',
+    ...typography.caption,
+    color: colors.textSecondary,
   },
   actions: {
     flexDirection: 'row',
@@ -133,16 +160,18 @@ const styles = StyleSheet.create({
   openButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 12,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.md,
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
   },
   openButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 6,
+    color: colors.textInverse,
+    ...typography.button,
+    marginLeft: spacing.xs,
   },
 });
+};
 
 export default NoteCard;

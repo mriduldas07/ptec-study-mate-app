@@ -8,11 +8,15 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 import NoteCard from '../components/NoteCard';
 import CourseCard from '../components/CourseCard';
 
 const FavoritesScreen = ({ navigation }) => {
   const { state, dispatch } = useApp();
+  const { colors } = useTheme();
+  const styles = useThemedStyles(theme => createStyles(theme));
   const [activeTab, setActiveTab] = useState('notes'); // 'notes' or 'courses'
 
   const getCourseTitle = (courseId) => {
@@ -76,7 +80,7 @@ const FavoritesScreen = ({ navigation }) => {
   ); 
  const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Ionicons name="heart-outline" size={64} color="#ccc" />
+      <Ionicons name="heart-outline" size={64} color={colors.textTertiary} />
       <Text style={styles.emptyStateText}>
         No favorite {activeTab} yet
       </Text>
@@ -121,56 +125,61 @@ const FavoritesScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 16,
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  activeTab: {
-    borderBottomColor: '#2196F3',
-  },
-  tabText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  activeTabText: {
-    color: '#2196F3',
-    fontWeight: 'bold',
-  },
-  listContainer: {
-    paddingVertical: 8,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 100,
-  },
-  emptyStateText: {
-    fontSize: 18,
-    color: '#666',
-    textAlign: 'center',
-    marginTop: 16,
-  },
-  emptyStateSubtext: {
-    fontSize: 14,
-    color: '#999',
-    textAlign: 'center',
-    marginTop: 8,
-  },
-});
+// Create styles using the themed styles hook for better dark/light mode support
+const createStyles = (theme) => {
+  const { colors, shadows, spacing, borderRadius, typography } = theme;
+  
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.screenBackground,
+    },
+    tabContainer: {
+      flexDirection: 'row',
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    tab: {
+      flex: 1,
+      paddingVertical: spacing.md,
+      alignItems: 'center',
+      borderBottomWidth: 2,
+      borderBottomColor: 'transparent',
+    },
+    activeTab: {
+      borderBottomColor: colors.primary,
+    },
+    tabText: {
+      ...typography.body1,
+      color: colors.textSecondary,
+    },
+    activeTabText: {
+      color: colors.primary,
+      fontWeight: 'bold',
+    },
+    listContainer: {
+      paddingVertical: spacing.sm,
+    },
+    emptyState: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingTop: spacing.xxl * 2,
+    },
+    emptyStateText: {
+      ...typography.h4,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginTop: spacing.md,
+    },
+    emptyStateSubtext: {
+      ...typography.body2,
+      color: colors.textTertiary,
+      textAlign: 'center',
+      marginTop: spacing.sm,
+    },
+  });
+};
 
 export default FavoritesScreen;

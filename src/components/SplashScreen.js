@@ -2,11 +2,13 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Image, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 const { width } = Dimensions.get('window');
 
 const SplashScreen = ({ onFinish }) => {
-    const { theme } = useTheme();
+    const { colors } = useTheme();
+    const styles = useThemedStyles(theme => createStyles(theme));
     
     // Animation refs
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -116,17 +118,10 @@ const SplashScreen = ({ onFinish }) => {
         outputRange: ['0%', '100%'],
     });
 
-    // Use theme colors or fallback
-    const colors = theme?.colors || {
-        primary: '#007AFF',
-        background: '#FFFFFF',
-        text: '#000000',
-        textSecondary: '#666666',
-    };
-
-    const gradientColors = theme?.isDark 
-        ? ['#000000', '#1a1a1a', '#2a2a2a']
-        : ['#007AFF', '#5856D6', '#007AFF'];
+    // Use theme colors for gradients
+    const gradientColors = colors.isDark 
+        ? [colors.screenBackground, colors.elevated, colors.surface]
+        : [colors.primary, colors.secondary, colors.accent];
 
     return (
         <LinearGradient
@@ -245,146 +240,144 @@ const SplashScreen = ({ onFinish }) => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-    },
-    backgroundPattern: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-    },
-    patternDot: {
-        width: 4,
-        height: 4,
-        borderRadius: 2,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        margin: 15,
-    },
-    content: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1,
-    },
-    logoWrapper: {
-        position: 'relative',
-        marginBottom: 40,
-    },
-    logoGlow: {
-        position: 'absolute',
-        width: 160,
-        height: 160,
-        borderRadius: 80,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        top: -20,
-        left: -20,
-    },
-    logoContainer: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.3,
-        shadowRadius: 20,
-        elevation: 10,
-    },
-    logo: {
-        width: 80,
-        height: 80,
-    },
-    textContainer: {
-        alignItems: 'center',
-        marginBottom: 60,
-    },
-    titleWrapper: {
-        position: 'relative',
-        overflow: 'hidden',
-        marginBottom: 8,
-    },
-    title: {
-        fontSize: 36,
-        fontWeight: '800',
-        color: 'white',
-        textAlign: 'center',
-        letterSpacing: 1,
-        textShadowColor: 'rgba(0, 0, 0, 0.3)',
-        textShadowOffset: { width: 0, height: 2 },
-        textShadowRadius: 4,
-    },
-    shimmer: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(255, 255, 255, 0.3)',
-        width: 30,
-        transform: [{ skewX: '-20deg' }],
-    },
-    subtitle: {
-        fontSize: 18,
-        color: 'rgba(255, 255, 255, 0.9)',
-        marginBottom: 8,
-        textAlign: 'center',
-        fontWeight: '500',
-        letterSpacing: 0.5,
-    },
-    tagline: {
-        fontSize: 14,
-        color: 'rgba(255, 255, 255, 0.7)',
-        textAlign: 'center',
-        fontWeight: '400',
-        letterSpacing: 2,
-        textTransform: 'uppercase',
-    },
-    progressContainer: {
-        width: width * 0.7,
-        alignItems: 'center',
-    },
-    progressTrack: {
-        width: '100%',
-        height: 6,
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        borderRadius: 3,
-        overflow: 'hidden',
-        marginBottom: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 2,
-    },
-    progressBar: {
-        height: '100%',
-        backgroundColor: 'white',
-        borderRadius: 3,
-        shadowColor: 'white',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.8,
-        shadowRadius: 6,
-        elevation: 4,
-    },
-    loadingText: {
-        fontSize: 14,
-        color: 'rgba(255, 255, 255, 0.8)',
-        textAlign: 'center',
-        fontWeight: '500',
-        letterSpacing: 0.5,
-    },
-});
+// Create styles using the themed styles hook for better dark/light mode support
+const createStyles = (theme) => {
+    const { colors, spacing, typography, borderRadius, shadows } = theme;
+    
+    return StyleSheet.create({
+        container: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'relative',
+            overflow: 'hidden',
+        },
+        backgroundPattern: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'space-around',
+            alignItems: 'center',
+            paddingHorizontal: spacing.md,
+        },
+        patternDot: {
+            width: 4,
+            height: 4,
+            borderRadius: 2,
+            backgroundColor: colors.isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+            margin: spacing.sm,
+        },
+        content: {
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1,
+        },
+        logoWrapper: {
+            position: 'relative',
+            marginBottom: spacing.xl,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        logoGlow: {
+            position: 'absolute',
+            width: 160,
+            height: 160,
+            borderRadius: 80,
+            backgroundColor: colors.isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+            top: -20,
+            left: -20,
+            shadowColor: colors.isDark ? colors.textInverse : colors.primary,
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0.8,
+            shadowRadius: 20,
+        },
+        logoContainer: {
+            width: 120,
+            height: 120,
+            borderRadius: 60,
+            backgroundColor: colors.isDark ? 'rgba(255, 255, 255, 0.15)' : colors.surface,
+            justifyContent: 'center',
+            alignItems: 'center',
+            ...shadows.large,
+        },
+        logo: {
+            width: 80,
+            height: 80,
+        },
+        textContainer: {
+            alignItems: 'center',
+            marginBottom: spacing.xl,
+        },
+        titleWrapper: {
+            position: 'relative',
+            overflow: 'hidden',
+            marginBottom: spacing.xs,
+        },
+        title: {
+            ...typography.h1,
+            color: colors.textInverse,
+            textAlign: 'center',
+            letterSpacing: 1,
+            textShadowColor: 'rgba(0, 0, 0, 0.3)',
+            textShadowOffset: { width: 0, height: 2 },
+            textShadowRadius: 4,
+        },
+        shimmer: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(255, 255, 255, 0.3)',
+            width: 30,
+            transform: [{ skewX: '-20deg' }],
+        },
+        subtitle: {
+            ...typography.h3,
+            color: 'rgba(255, 255, 255, 0.9)',
+            marginBottom: spacing.xs,
+            textAlign: 'center',
+        },
+        tagline: {
+            ...typography.caption,
+            color: 'rgba(255, 255, 255, 0.7)',
+            textAlign: 'center',
+            letterSpacing: 2,
+            textTransform: 'uppercase',
+        },
+        progressContainer: {
+            width: width * 0.7,
+            alignItems: 'center',
+        },
+        progressTrack: {
+            width: '100%',
+            height: 6,
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            borderRadius: borderRadius.xs,
+            overflow: 'hidden',
+            marginBottom: spacing.md,
+            ...shadows.small,
+        },
+        progressBar: {
+            height: '100%',
+            backgroundColor: colors.textInverse,
+            borderRadius: borderRadius.xs,
+            shadowColor: colors.textInverse,
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0.8,
+            shadowRadius: 6,
+            elevation: 4,
+        },
+        loadingText: {
+            ...typography.body2,
+            color: 'rgba(255, 255, 255, 0.8)',
+            textAlign: 'center',
+        },
+    });
+};
 
 export default SplashScreen;

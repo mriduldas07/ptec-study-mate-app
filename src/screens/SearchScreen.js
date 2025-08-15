@@ -9,10 +9,14 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 import NoteCard from '../components/NoteCard';
 
 const SearchScreen = ({ navigation }) => {
     const { state, dispatch } = useApp();
+    const { colors } = useTheme();
+    const styles = useThemedStyles(theme => createStyles(theme));
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [recentSearches, setRecentSearches] = useState([]);
@@ -90,7 +94,7 @@ const SearchScreen = ({ navigation }) => {
 
     const renderEmptyState = () => (
         <View style={styles.emptyState}>
-            <Ionicons name="search-outline" size={64} color="#ccc" />
+            <Ionicons name="search-outline" size={64} color={colors.textTertiary} />
             <Text style={styles.emptyStateText}>
                 {searchQuery ? 'No results found' : 'Search for notes, courses, or levels'}
             </Text>
@@ -101,10 +105,11 @@ const SearchScreen = ({ navigation }) => {
         <View style={styles.container}>
             <View style={styles.searchContainer}>
                 <View style={styles.searchInputContainer}>
-                    <Ionicons name="search-outline" size={20} color="#666" />
+                    <Ionicons name="search-outline" size={20} color={colors.textSecondary} />
                     <TextInput
                         style={styles.searchInput}
                         placeholder="Search notes, courses, levels..."
+                        placeholderTextColor={colors.textTertiary}
                         value={searchQuery}
                         onChangeText={setSearchQuery}
                         autoCapitalize="none"
@@ -112,7 +117,7 @@ const SearchScreen = ({ navigation }) => {
                     />
                     {searchQuery.length > 0 && (
                         <TouchableOpacity onPress={() => setSearchQuery('')}>
-                            <Ionicons name="close-circle" size={20} color="#666" />
+                            <Ionicons name="close-circle" size={20} color={colors.textSecondary} />
                         </TouchableOpacity>
                     )}
                 </View>
@@ -130,46 +135,51 @@ const SearchScreen = ({ navigation }) => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F5F5F5',
-    },
-    searchContainer: {
-        backgroundColor: 'white',
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#E0E0E0',
-    },
-    searchInputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#F8F9FA',
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-    },
-    searchInput: {
-        flex: 1,
-        fontSize: 16,
-        marginLeft: 12,
-        color: '#333',
-    },
-    listContainer: {
-        paddingVertical: 8,
-    },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingTop: 100,
-    },
-    emptyStateText: {
-        fontSize: 16,
-        color: '#666',
-        textAlign: 'center',
-        marginTop: 16,
-    },
-});
+// Create styles using the themed styles hook for better dark/light mode support
+const createStyles = (theme) => {
+    const { colors, shadows, spacing, borderRadius, typography } = theme;
+    
+    return StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.screenBackground,
+        },
+        searchContainer: {
+            backgroundColor: colors.surface,
+            padding: spacing.md,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+        },
+        searchInputContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.elevated,
+            borderRadius: borderRadius.md,
+            paddingHorizontal: spacing.md,
+            paddingVertical: spacing.sm,
+        },
+        searchInput: {
+            flex: 1,
+            ...typography.body1,
+            marginLeft: spacing.sm,
+            color: colors.text,
+        },
+        listContainer: {
+            paddingVertical: spacing.sm,
+        },
+        emptyState: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingTop: spacing.xxl * 2,
+        },
+        emptyStateText: {
+            ...typography.body1,
+            color: colors.textSecondary,
+            textAlign: 'center',
+            marginTop: spacing.md,
+        },
+    });
+};
 
 export default SearchScreen;
